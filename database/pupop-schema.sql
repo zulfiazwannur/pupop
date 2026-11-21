@@ -1,34 +1,23 @@
--- =====================================================================
--- PuPoP - skema database (REFERENSI, untuk dibaca / dicek di phpMyAdmin)
---
--- Cara UTAMA membuat tabel adalah:  php artisan migrate --seed
--- File ini hanya gambaran struktur yang sama persis dengan folder
--- database/migrations. JANGAN diimpor lalu menjalankan migrate pada
--- database yang sama (tabel akan bentrok). Pilih salah satu.
--- =====================================================================
-
 CREATE DATABASE IF NOT EXISTS kelompok6 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE kelompok6;
 
--- Akun. role = 'pelanggan' | 'mitra' (dipilih saat daftar)
 CREATE TABLE users (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
   email_verified_at TIMESTAMP NULL,
-  password VARCHAR(255) NOT NULL,                -- bcrypt
+  password VARCHAR(255) NOT NULL,                
   foto_profil VARCHAR(255) NULL,
   role VARCHAR(20) NOT NULL DEFAULT 'pelanggan',
   lokasi VARCHAR(255) NULL,
   poin INT UNSIGNED NOT NULL DEFAULT 0,
-  saldo BIGINT UNSIGNED NOT NULL DEFAULT 0,      -- rupiah (mitra)
-  mitra_pilihan_id BIGINT UNSIGNED NULL,         -- mitra favorit pelanggan
+  saldo BIGINT UNSIGNED NOT NULL DEFAULT 0,      
+  mitra_pilihan_id BIGINT UNSIGNED NULL,         
   remember_token VARCHAR(100) NULL,
   created_at TIMESTAMP NULL,
   updated_at TIMESTAMP NULL
 ) ENGINE=InnoDB;
 
--- Pengelolaan Lokasi Mitra
 CREATE TABLE lokasi_mitra (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id BIGINT UNSIGNED NOT NULL,
@@ -50,7 +39,6 @@ CREATE TABLE lokasi_mitra (
 ALTER TABLE users
   ADD FOREIGN KEY (mitra_pilihan_id) REFERENCES lokasi_mitra(id) ON DELETE SET NULL;
 
--- Pengelolaan Data Usaha (1 mitra = 1 data usaha)
 CREATE TABLE data_usaha (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id BIGINT UNSIGNED NOT NULL UNIQUE,
@@ -69,7 +57,6 @@ CREATE TABLE data_usaha (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- Katalog produk tukar poin
 CREATE TABLE produk (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   nama VARCHAR(100) NOT NULL,
@@ -81,7 +68,6 @@ CREATE TABLE produk (
   updated_at TIMESTAMP NULL
 ) ENGINE=InnoDB;
 
--- Pengelolaan Keranjang
 CREATE TABLE keranjang (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id BIGINT UNSIGNED NOT NULL,
@@ -94,7 +80,6 @@ CREATE TABLE keranjang (
   FOREIGN KEY (produk_id) REFERENCES produk(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- Penukaran (hasil checkout keranjang)
 CREATE TABLE penukaran (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id BIGINT UNSIGNED NOT NULL,
@@ -119,7 +104,6 @@ CREATE TABLE penukaran_item (
   FOREIGN KEY (produk_id) REFERENCES produk(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- Pengelolaan Data Setor Popok (status: menunggu | diterima)
 CREATE TABLE setor_popok (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id BIGINT UNSIGNED NOT NULL,
@@ -136,7 +120,6 @@ CREATE TABLE setor_popok (
   FOREIGN KEY (lokasi_mitra_id) REFERENCES lokasi_mitra(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- Pengelolaan Riwayat Transaksi Mitra (tipe: setor | reward | tarik; sumber: otomatis | manual)
 CREATE TABLE transaksi_mitra (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id BIGINT UNSIGNED NOT NULL,
@@ -156,7 +139,6 @@ CREATE TABLE transaksi_mitra (
   FOREIGN KEY (setor_popok_id) REFERENCES setor_popok(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- Permintaan pickup mitra (status: menunggu | selesai)
 CREATE TABLE pickup_mitra (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id BIGINT UNSIGNED NOT NULL,
@@ -170,4 +152,3 @@ CREATE TABLE pickup_mitra (
   FOREIGN KEY (lokasi_mitra_id) REFERENCES lokasi_mitra(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- Tabel bawaan Laravel (sessions, cache, jobs, password_reset_tokens) dibuat oleh php artisan migrate.
